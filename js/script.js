@@ -118,11 +118,8 @@ $('#customers').on('blur', ".editable", function() {
 
 	req.onsuccess = function() {
 		var data = req.result; 
-		if(field == 'name') {
-			data.name = newText; 
-		} else if (field == 'email') {
-			data.email = newText; 
-		}
+
+		data[field]= newText; 
 
 		var reqUpdate = store.put(data); 
 
