@@ -43,8 +43,12 @@ function showCustomers() {
 		if (cursor) {
 			output += 	"<tr id='customer" 	+ cursor.value.id 		+ "'>" 														+
 							"<td>" 		 	+ cursor.value.id 		+ "</td>" 			+ 
-							"<td><span>" 	+ cursor.value.name 	+ "</span></td>" 	+ 
-							"<td><span>" 	+ cursor.value.email 	+ "</span></td>"	+ 
+							"<td><span class='editable' contenteditable='true' data-field='name' data-id='" + 
+							cursor.value.id 	+ "'>"	+ 
+							cursor.value.name 	+ "</span></td>" 	+ 
+							"<td><span class='editable' contenteditable='true' data-field='email' data-id='" + 
+							cursor.value.id 	+ "''>" 	+ 
+							cursor.value.email 	+ "</span></td>"	+ 
 							"<td><a href='' onclick='removeCustomer("   +  cursor.value.id 	+ 
 							")'>Delete</a></td>"	+ 
 						"</tr>";
@@ -101,3 +105,33 @@ function removeCustomer(id) {
 	}
 
 }
+
+// Update Customer 
+$('#customers').on('blur', ".editable", function() {
+	var newText = $(this).html(); 
+	var field = $(this).data('field'); 
+	var id = $(this).data('id'); 
+
+	var tx = db.transaction(["customers"], "readwrite");
+	var store = tx.objectStore("customers");
+	var req = store.get(id); 
+
+	req.onsuccess = function() {
+		var data = req.result; 
+		if(field == 'name') {
+			data.name = newText; 
+		} else if (field == 'email') {
+			data.email = newText; 
+		}
+
+		var reqUpdate = store.put(data); 
+
+		reqUpdate.onsuccess = function () {
+			console.log("Sucess: Customer data updated");
+		}
+
+		reqUpdate.onerror = function () {
+			console.log("Error: Customer data not updated");
+		}
+	}
+})
